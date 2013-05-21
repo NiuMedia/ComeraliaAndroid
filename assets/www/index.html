@@ -1,0 +1,767 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>Comeralia</title> 
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" href="mobile/jquery-mobile-css.css" />
+	<link rel="stylesheet" href="mobile/themes/comeralia.min.css" />
+	<script src="mobile/jquery.js"></script>
+	<script src="mobile/jquery-mobile.js"></script>
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true&libraries=places"></script>
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-37300722-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+	<style type="text/css">
+		.llamar-espacio{
+			margin-top: 25px;
+		}
+		.img-restaurantes{ 
+			width: 100%;
+		}
+		.img-contenedor{
+			padding: 15px;
+			max-width: 768px;
+			background: rgba(255,255,255, 0.5);
+		}
+		.img-cont-int{
+			margin-right: auto;
+			margin-left: auto;
+			margin-top: 15px;
+		}
+		.ui-li-heading {
+			margin: 0.6em 0px 0.6em 85px;
+		}
+		.ui-li-desc{
+			margin: -.5em 0px .6em 85px;
+		}
+
+		.ui-li-has-thumb .ui-btn-inner a.ui-link-inherit, .ui-li-static.ui-li-has-thumb {
+			min-height: 60px;
+			padding-left: 15px;
+		}
+		.ui-page {
+			background-image: url('mobile/themes/images/fondo_tile.jpg');
+			background-repeat: repeat;
+		}
+		#fondo-busqueda {
+			background: rgba(256, 256, 256, 0.3);
+			padding: 1px 20px;
+			padding-top: 1px;
+			border-radius: 10px;
+		}
+		#label-main{
+			text-align: center;
+			margin: 10px 0px 5px 0px;
+		}
+		.char {
+			font-size: 15px;
+			vertical-align: middle;
+		}
+		#restaurante {
+			background-image: url('mobile/themes/images/fondo_tile2.jpg');
+			background-repeat: repeat;
+		}
+		.comidas-label {
+			background-color:silver;
+		 	color:white;
+			width:50px;
+		}
+		.dias-label {
+		    background-color: #EAEAEA;
+		    color: #EA6706;
+		    text-align: center;
+		    width: 70px;
+		}
+		.table-cool {
+			border: 1px solid black;
+			background-color: #FFFFFF;
+		}
+		.table-cool th, td, tr {
+			border: 1px solid black;
+			text-align: center;
+		}
+	</style>
+	<script type="text/javascript" language="JavaScript">
+		jQuery(document).ready(function(){
+			$.mobile.loading( 'show', {
+				text: 'Cargando...',
+				textVisible: true,
+				theme: 'a',
+				html: ""
+			});
+			jQuery.post('http://comeralia.com.mx/api/api.php', {metodo : "tipos_comida"}, function( data ){
+				select = jQuery("#select-tipos-de-comida");
+				for(tipo in data){
+					select.append("<option value=\"" + data[tipo][0] + "\">" + data[tipo][1] + "</option>");
+				}
+			}, "json");
+			jQuery.post('http://comeralia.com.mx/api/api.php', {metodo : "zonas_comida"}, function( data ){
+				select = jQuery("#select-tipo-zona");
+				for(tipo in data){
+					select.append("<option value=\"" + data[tipo][0] + "\">" + data[tipo][1] + "</option>");
+				}
+				$.mobile.loading( 'hide' );
+			}, "json");
+			jQuery("#busqueda-button").click(function(){
+				jQuery.mobile.loading( 'show', {
+					text: 'Cargando...',
+					textVisible: true,
+					theme: 'a',
+					html: ""
+				});
+				elemento = $(this)
+				jQuery("#listado-restaurantes").empty();
+				jQuery.post( 'http://comeralia.com.mx/api/api.php', jQuery("#busqueda-form").serialize(), function( data ){
+					
+					for(tipo in data){
+						elemento_lista  = jQuery("<li>"+
+							"<input type=\"hidden\" id=\"id-restaurante\" value=\""+data[tipo][0]+"\">"+
+							"<img style=\"padding: 10px; width: 80px;\" src=\"http://comeralia.com.mx/imagenes_usr/"+ data[tipo][8] +"\" />"+
+							"<h3 style=\"display: block; white-space:normal;margin-top:10px;margin-bottom:10px;\">"+ data[tipo][1] +"</h3>"+
+							"<p style=\"display: block; white-space:normal;margin-top:10px;margin-bottom:10px;\">"+ data[tipo][2] +" "+ data[tipo][3] +" "+ data[tipo][4] +"</p>"+
+							"<p style=\"display: block\">"+ data[tipo][5] +"</p>"+
+							"<br /><div class=\"ui-grid-a\">"+
+								"<div class=\"ui-block-a\">"+
+									"<a href=\"tel:"+ data[tipo][5] +"\" data-role=\"button\" data-theme=\"c\">Llamar</a>"+
+								"</div>"+
+								"<div class=\"ui-block-b\">"+
+									"<a href=\"#restaurante\" data-transition=\"slideup\" id=\"ver-mas\" data-role=\"button\" data-theme=\"b\">Más</a>"+
+								"</div>"+
+							"</div>"+
+						"</li>");
+						jQuery("#listado-restaurantes").append(elemento_lista).trigger('create');
+						id_restaurante = elemento_lista.find("#id-restaurante").val();
+						elemento_lista.find("#ver-mas").click( function(){ 
+							
+							id_restaurante = $(this).parent().parent().parent().find( "#id-restaurante" ).val();
+							origen_y_asi = "#listado";
+							ver_mas( id_restaurante,origen_y_asi );
+							
+						});
+					}
+					jQuery("#listado-restaurantes").listview('refresh');
+					$.mobile.loading( 'hide' );
+				}, "json" );
+				
+				return true;
+			});
+
+			jQuery("#listado-con-busqueda").click(function(){
+				jQuery.mobile.loading( 'show', {
+					text: 'Cargando...',
+					textVisible: true,
+					theme: 'a',
+					html: ""
+				});
+				elemento = $(this)
+				jQuery("#listado-restaurantes-completo").empty();
+				jQuery.post( 'http://comeralia.com.mx/api/api.php', {Cocina:"", Servicio:"", Zona:"", metodo: "restaurantes"}, function( data ){
+					
+					for(tipo in data){
+						elemento_lista  = jQuery("<li>"+
+							"<input type=\"hidden\" id=\"id-restaurante\" value=\""+data[tipo][0]+"\">"+
+							data[tipo][1] +
+							"<div class=\"ui-grid-solo\">"+
+								"<a href=\"#restaurante\" data-transition=\"slideup\" id=\"ver-mas\" data-role=\"button\" data-theme=\"b\">Más</a>"+
+							"</div>"+
+						"</li>");
+						jQuery("#listado-restaurantes-completo").append(elemento_lista).trigger('create');
+						id_restaurante = elemento_lista.find("#id-restaurante").val();
+						elemento_lista.find("#ver-mas").click( function(){ 
+							
+							id_restaurante = $(this).parent().parent().parent().find( "#id-restaurante" ).val();
+							origen_y_asi = "#listado";
+							ver_mas( id_restaurante,origen_y_asi );
+							
+						});
+					}
+					jQuery("#listado-restaurantes-completo").listview('refresh');
+					$.mobile.loading( 'hide' );
+				}, "json" );
+				
+				return true;
+			});
+		
+			function ver_mas( identificador , origen_ant){
+				
+				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'restaurante', id:identificador}, function( data ){
+
+					jQuery("#restaurante #btn-volver").attr('href',""+origen_ant);
+					jQuery("#restaurante #title").html(data.info.Restaurante);
+					jQuery("#restaurante #adress").html(data.info.Calle + " " + data.info.Numero + " "+ data.info.Colonia);
+					jQuery("#restaurante #telefono").html(data.info.TelOficina);
+					jQuery("#restaurante #logo").attr('src', "http://comeralia.com.mx/imagenes_usr/" + data.info.Logo);
+					jQuery("#restaurante #link-llamar").attr('href', "tel:" + data.info.TelOficina);
+					jQuery("#restaurante #id-restaurante").val(identificador);
+					jQuery("#restaurante #resena").html(data.info.Resenia);
+					
+					chars = "";
+					
+					for(x in data.char){
+						chars = chars + "<div class=\"ui-grid-solo\">" + 
+							"<img src=\"mobile/themes/images/"+ data.char[x].Imagen +"\" />"+
+							"</div>";	
+					}
+					jQuery("#restaurante #chars").empty();
+					jQuery("#restaurante #chars").append(chars);
+					if(data.info.HDom1 != "" && data.info.HDom2 != ""){
+						jQuery("#restaurante #hordom").html(data.info.HDom1 + " a " + data.info.HDom2);
+					}else{
+						jQuery("#restaurante #hordom").html( "Cerrado");
+					}
+					if(data.info.HLun1 != "" && data.info.HLun2 != ""){
+						jQuery("#restaurante #horlun").html(data.info.HLun1 + " a " + data.info.HLun2);
+					}else {
+						jQuery("#restaurante #horlun").html("Cerrado");
+					}
+					if(data.info.HMar1 != "" && data.info.HMar2 != ""){
+						jQuery("#restaurante #hormar").html(data.info.HMar1 + " a " + data.info.HMar2);
+					}else {
+						jQuery("#restaurante #hormar").html("Cerrado");
+					}
+					if(data.info.HMier1 != "" && data.info.HMier2 !=""){
+						jQuery("#restaurante #hormier").html(data.info.HMier1 + " a " + data.info.HMier2);
+					}else{
+						jQuery("#restaurante #hormier").html( "Cerrado" );
+					}
+					if(data.info.HJue1 != "" && data.info.HJue2 != ""){
+						jQuery("#restaurante #horjue").html(data.info.HJue1 + " a " + data.info.HJue2);
+					}else{
+						jQuery("#restaurante #horjue").html("Cerrado");
+					}
+					if(data.info.HVier1 != "" && data.info.HVier2 != ""){
+						jQuery("#restaurante #horvie").html(data.info.HVier1 + " a " + data.info.HVier2);
+					}else {
+						jQuery("#restaurante #horvie").html("Cerrado");
+					}
+					if(data.info.HSab1 != "" && data.info.HSab2 != ""){
+						jQuery("#restaurante #horsab").html(data.info.HSab1 + " a " + data.info.HSab2);
+					}else{
+						jQuery("#restaurante #horsab").html("Cerrado");
+						
+					}
+				}, "json");
+				
+								
+				return true;
+			}
+//MENU
+//-----------------------------------------------------------
+			jQuery("#btn-menu").click(function(){
+				id_restaurante = $(this).parent().parent().parent().find('#id-restaurante').val();
+				
+				jQuery('#menu-colapsable').empty();
+				
+				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'restaurante', id:id_restaurante}, function( data ){
+					
+					jQuery("#menu #title").html(data.info.Restaurante);
+					jQuery("#menu #adress").html(data.info.Calle + " " + data.info.Numero + " "+ data.info.Colonia);
+					jQuery("#menu #telefono").html(data.info.TelOficina);
+					jQuery("#menu #logo").attr('src', "http://comeralia.com.mx/imagenes_usr/" + data.info.Logo);
+					jQuery("#menu #link-llamar").attr('href', "tel:" + data.info.TelOficina);
+					
+				}, "json");
+
+				
+				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'menu', id:id_restaurante}, function( data ){
+					
+					completo = "";
+					
+					for(x in data){
+						container_open = "<div data-role=\"collapsible\">" +
+							"<h2 id=\"menu-title\">"+data[x].Menu+"</h2>";
+							
+						lista = "";
+							
+							for(y in data[x].Platillos){
+								lista = lista +
+									"<div class=\"ui-grid-a\">" +
+										"<div class=\"ui-block-a\">" + data[x].Platillos[y][0]  + "</div>" +
+										"<div class=\"ui-block-b\"><span style=\"position:relative; padding-left:15px;\">"+data[x].Platillos[y][2]+"</span></div>"+
+									"</div>"+
+									"<div class=\"ui-grid-solo\">"+
+										"<div style='color:grey;font-style:italic;font-size:.8em;'>"+data[x].Platillos[y][1]+"</div>"+
+									"</div>";
+							}
+							
+						container_close = "</div>";
+						
+						completo = completo + container_open + lista + container_close;
+						
+					}
+					
+					
+					jQuery('#menu-colapsable').append(completo).collapsibleset( "refresh" );
+				}, 'json');
+			});
+//UBICACION
+//-----------------------------------------------------------
+			jQuery("#btn-ubicacion").click(function(){
+				id_restaurante = $(this).parent().parent().parent().find('#id-restaurante').val();
+				
+				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'restaurante', id:id_restaurante}, function( data ){
+					
+					
+					jQuery("#ubicacion #title").html(data.info.Restaurante);
+					jQuery("#ubicacion #adress").html(data.info.Calle + " " + data.info.Numero + " "+ data.info.Colonia);
+					jQuery("#ubicacion #telefono").html(data.info.TelOficina);
+					jQuery("#ubicacion #logo").attr('src', "http://comeralia.com.mx/imagenes_usr/" + data.info.Logo);
+					jQuery("#ubicacion #link-llamar").attr('href', "tel:" + data.info.TelOficina);
+					
+					geocoder = new google.maps.Geocoder();
+					
+					geocoder.geocode( { 'address': data.info.Calle + " " + data.info.Numero + ", " + data.info.Colonia + ", San Luis Potosi, San Luis Potosi, Mexico" }, function(results, status) {
+						if (status == google.maps.GeocoderStatus.OK) {
+							map.setCenter(results[0].geometry.location);
+							var marker = new google.maps.Marker({
+								map: map, 
+								position: results[0].geometry.location
+							});
+						} else {
+							alert("La Geolocalizacion no pudo realizarse por la siguiente razon: " + status);
+						}
+					});
+					
+					var myLatlng = new google.maps.LatLng(22.142733,-101.010203);
+					var myOptions = {
+						zoom: 16,
+						center: myLatlng,
+						mapTypeId: google.maps.MapTypeId.ROADMAP
+					}
+					var map = new google.maps.Map(document.getElementById("map"), myOptions);
+						
+					google.maps.event.addDomListener(window, 'load', initialize);
+
+				}, "json");
+				
+			});
+//GALERIA
+//-----------------------------------------------------------
+			jQuery("#btn-galeria").click(function(){
+				id_restaurante = $(this).parent().parent().parent().find('#id-restaurante').val();
+				
+				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'restaurante', id:id_restaurante}, function( data ){
+					
+					
+					jQuery("#galeria #title").html(data.info.Restaurante);
+					jQuery("#galeria #adress").html(data.info.Calle + " " + data.info.Numero + " "+ data.info.Colonia);
+					jQuery("#galeria #telefono").html(data.info.TelOficina);
+					jQuery("#galeria #logo").attr('src', "http://comeralia.com.mx/imagenes_usr/" + data.info.Logo);
+					jQuery("#galeria #link-llamar").attr('href', "tel:" + data.info.TelOficina);
+					jQuery("#galeria #img1").attr('src',"http://comeralia.com.mx/imagenes_usr/" + data.info.Imagen1);
+					jQuery("#galeria #img2").attr('src',"http://comeralia.com.mx/imagenes_usr/" + data.info.Imagen2);
+					jQuery("#galeria #img3").attr('src',"http://comeralia.com.mx/imagenes_usr/" + data.info.Imagen3);
+					jQuery("#galeria #img4").attr('src',"http://comeralia.com.mx/imagenes_usr/" + data.info.Imagen4);
+					jQuery("#galeria #img5").attr('src',"http://comeralia.com.mx/imagenes_usr/" + data.info.Imagen5);
+				}, "json");
+
+				
+			});
+//PROMOCIONES
+//-----------------------------------------------------------
+			jQuery("#btn-promociones").click(function(){
+				id_restaurante = $(this).parent().parent().parent().find('#id-restaurante').val();
+				
+				jQuery("#promospace").empty();
+				
+				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'restaurante', id:id_restaurante}, function( data ){
+					
+					jQuery("#promociones #title").html(data.info.Restaurante);
+					jQuery("#promociones #adress").html(data.info.Calle + " " + data.info.Numero + " "+ data.info.Colonia);
+					jQuery("#promociones #telefono").html(data.info.TelOficina);
+					jQuery("#promociones #logo").attr('src', "http://comeralia.com.mx/imagenes_usr/" + data.info.Logo);
+					jQuery("#promociones #link-llamar").attr('href', "tel:" + data.info.TelOficina);
+					
+				}, "json");
+				
+				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'promociones', id:id_restaurante}, function( data ){
+					
+					for(x in data){
+						
+						titulo = jQuery("<h3></h3>");
+						dia = jQuery("<p style=\"white-space:normal\"></p>");
+						restricciones = jQuery("<p style=\"white-space:normal\"></p>");
+						promocion = jQuery("<p style=\"white-space:normal\"></p>");
+						promo_container = jQuery("<li></li>");
+						
+						switch(data[x].Dia){
+							case "1":
+								dia.text("Domingo");
+							break;
+							case "2":
+								dia.text("Lunes");
+							break;
+							case "3":
+								dia.text("Martes");
+							break;
+							case "4":
+								dia.text("Miercoles");
+							break;
+							case "5":
+								dia.text("Jueves");
+							break;
+							case "6":
+								dia.text("Viernes");
+							break;
+							case "7":
+								dia.text("Sabado");
+							break;
+						}
+						
+						titulo.text(data[x].Titulo);
+						restricciones.text(data[x].Restricciones);
+						promocion.append($(data[x].Promociones).text());
+						
+						promo_container.append(dia);
+						promo_container.append(titulo);
+						promo_container.append(promocion);
+						promo_container.append(restricciones);
+						
+						jQuery("#promospace").append(promo_container).listview('refresh');
+						
+					}
+					
+					
+				}, "json");
+			});
+//PROMOCIONES DEL DIA
+//-----------------------------------------------------------
+			jQuery("#promos-de-hoy").click(function(){
+				jQuery.mobile.loading( 'show', {
+					text: 'Cargando...',
+					textVisible: true,
+					theme: 'a',
+					html: ""
+				});
+				elemento = $(this)
+				jQuery("#promospaceall").empty();
+				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'promociones_dia'}, function( data ){
+					
+					for(tipo in data){
+						if(data[tipo].Restaurante==""||data[tipo].Restaurante==null){restaurant=" "}else{restaurant=data[tipo].Restaurante}
+						if(data[tipo].Titulo==""||data[tipo].Titulo==null){titulo="Promocion del día"}else{titulo=data[tipo].Titulo}
+						if(data[tipo].Restricciones==""||data[tipo].Restricciones==null){restricciones="Sin Restricciones"}else{restricciones=data[tipo].Restricciones}
+						elemento_lista  = jQuery("<li>"+
+							"<input type=\"hidden\" id=\"id-restaurante\" value=\""+data[tipo].IdRestaurante+"\">"+
+							"<img style=\"padding: 10px\" src=\"http://comeralia.com.mx/imagenes_usr/"+ data[tipo].Logo +"\" />"+
+								"<h3 style=\"display: block; white-space:normal;\">"+ restaurant +"</h3>"+
+								"<p style=\"display: block; white-space:normal;margin-top:10px;margin-bottom:10px; font-weight:600;\">"+ titulo+"</p>"+
+								"<p style=\"display: block; white-space:normal;margin-top:10px;margin-bottom:10px;\">"+restricciones+"</p>"+
+								"<div class=\"ui-grid-solo\">"+
+									"<div class=\"ui-block\">"+
+										"<a href=\"#restaurante\" data-transition=\"slideup\" id=\"ver-mas\" data-role=\"button\" data-theme=\"b\">Más</a>"+
+									"</div>"+
+								"</div>"+
+							"</li>");
+						jQuery("#promospaceall").append(elemento_lista).trigger('create');
+						id_restaurante = elemento_lista.find("#id-restaurante").val();
+						elemento_lista.find("#ver-mas").click( function(){ 
+							
+							id_restaurante = $(this).parent().parent().parent().find( "#id-restaurante" ).val();
+							origen_y_asi = "#promociones-del-dia";
+							ver_mas( id_restaurante, origen_y_asi);
+
+							
+						});
+					}
+					jQuery("#promospaceall").listview('refresh');
+					$.mobile.loading( 'hide' );
+				}, "json" );
+				
+				return true;
+			});
+		});
+	</script>
+</head> 
+<body> 
+
+<!--HOME-->
+<div data-role="page" id="home">
+
+	<div data-role="header" data-position="fixed">
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
+	</div><!-- /header -->
+
+	<div data-role="content">
+			<div id="fondo-busqueda">
+				<h2 id="label-main">¿Que quieres comer?</h2>
+				<form id="busqueda-form" action="#">
+					<label for="select-tipos-de-comida">Tipos de comida:</label>
+					<select data-theme="d" id="select-tipos-de-comida" name="Cocina">
+						<option value="">[Todos]</option>
+					</select>
+					<label for="select-tipo-servicio">Tipo de Servicio:</label>
+					<select data-theme="d" id="select-tipo-servicio" name="Servicio">
+							<option value="">[Cualquiera]</option>
+							<option value=""> Comedor </option>
+							<option value="1"> A Domicilio </option>
+					</select>
+					<label for="select-tipo-zona">Zona:</label>
+					<select data-theme="d" id="select-tipo-zona" name="Zona">
+							<option value="">[Todas]</option>
+					</select>
+					<input name="metodo" value="restaurantes" type="hidden" />
+				</form>
+				 <a href="#listado" id="busqueda-button" data-transition="slideup" style="width: 100%; right: 0px; position: relative" data-theme="b" data-role="button">Buscar</a> 	
+		</div>
+		 <a href="#promociones-del-dia" id="promos-de-hoy" data-theme="c" data-role="button">Promociones de hoy</a> 
+		 <a href="#listado-completo" id="listado-con-busqueda" data-theme="a" data-role="button">Buscar dentro de todos los restaurantes</a> 
+	</div><!-- /content -->
+
+</div><!-- /page -->
+
+<!--NO CONNECTION-->
+<div data-role="page" id="no-connection">
+
+	<div data-role="header" data-position="fixed">
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
+	</div><!-- /header -->
+
+	<div data-role="content">
+		<div id="fondo-busqueda">
+			<h2 id="label-main">Lo siento, no pudimos encontrar una conexión a internet :(</h2>
+		</div>
+		 <a href="#promociones-del-dia" id="promos-de-hoy" data-theme="c" data-role="button">Promociones de hoy</a> 
+	</div><!-- /content -->
+
+</div><!-- NO CONNECTION-->
+
+<!--LISTADO-->
+<div data-role="page" id="listado">
+	<div data-role="header" data-position="fixed">
+		<a href="#home" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
+	</div><!-- /header -->
+	<div data-role="content">
+		<ul data-role="listview" id="listado-restaurantes" data-theme="d">
+		</ul>
+	</div>
+</div>
+<!--RESTAURANTE-->
+<div data-role="page" id="restaurante">
+	<div data-role="header" data-position="fixed">
+
+		<a id="btn-volver" href="" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
+		<h1><img src="mobile/themes/images/logo_app_interno.png" width="100"/></h1>
+	</div><!-- /header -->
+	<div data-role="content">
+		<input id="id-restaurante" type="hidden" value="" />
+		<ul data-role="listview" style="margin: 0px;" data-theme="d">
+			<li>
+				<img id="logo" style="padding: 10px" src="" />
+				<h2 id="title" style="display: block; white-space:normal;"></h2>
+				<p id="adress" style="display: block; white-space:normal;"></p>
+				<p id="telefono" style="display: block"></p>
+				<div class="ui-grid-solo llamar-espacio">
+					<a data-role="button" id="link-llamar" data-theme="c">Llamar</a>
+				</div>
+			</li>
+		</ul>
+		<div class="ui-grid-a">
+			<div class="ui-block-a">
+				<a href="#menu" id="btn-menu" data-role="button" data-theme="b">Menú</a>
+			</div>
+			<div class="ui-block-b">
+				<a id="btn-promociones" href="#promociones" data-role="button" data-theme="a">Promociones</a>
+			</div>
+		</div>
+		<div class="ui-grid-a">
+			<div class="ui-block-a">
+				<a data-role="button" href="#galeria" id="btn-galeria" data-theme="b">Galería</a>
+			</div>
+			<div class="ui-block-b">
+				<a data-role="button" id="btn-ubicacion" href="#ubicacion" data-theme="b">Ubicación</a>
+			</div>
+		</div>
+		<!-- Caracteristicas del restaurante -->
+		<div id="chars" class="ui-grid-solo">
+			
+		</div>
+			<h3>Horario</h3>
+			<div class="ui-grid-a">
+				<div class="ui-block-a"><span>Domingo: </span></div>
+				<div class="ui-block-b"><span id="hordom"></span></div>
+			</div>
+			<div class="ui-grid-a">
+				<div class="ui-block-a"><span>Lunes: </span></div>
+				<div class="ui-block-b"><span id="horlun"></span></div>
+			</div>
+			<div class="ui-grid-a">
+				<div class="ui-block-a"><span>Martes: </span></div>
+				<div class="ui-block-b"><span id="hormar"></span></div>
+			</div>
+			<div class="ui-grid-a">
+				<div class="ui-block-a"><span>Miercoles: </span></div>
+				<div class="ui-block-b"><span id="hormier"></span></div>
+			</div>
+			<div class="ui-grid-a">
+				<div class="ui-block-a"><span>Jueves: </span></div>
+				<div class="ui-block-b"><span id="horjue"></span></div>
+			</div>
+			<div class="ui-grid-a">
+				<div class="ui-block-a"><span>Viernes: </span></div>
+				<div class="ui-block-b"><span id="horvie"></span></div>
+			</div>
+			<div class="ui-grid-a">
+				<div class="ui-block-a"><span>Sabado: </span></div>
+				<div class="ui-block-b"><span id="horsab"></span></div>
+			</div>
+		<div>
+			<h2 id="title" style="display: block; white-space:normal;">Reseña</h2>
+			<p id="resena"></p>
+		</div>
+	</div>
+</div>
+
+<!--UBICACION-->
+<div data-role="page" id="ubicacion">
+	<div data-role="header" data-position="fixed">
+		<a href="#restaurante" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
+	</div><!-- /header -->
+	<div data-role="content">
+		<ul data-role="listview" style="margin: 0px;" data-theme="d">
+			<li>
+				<img id="logo" style="padding: 10px" src="" />
+				<h2 id="title" style="display: block; white-space:normal;"></h2>
+				<p id="adress" style="display: block; white-space:normal;"></p>
+				<p id="telefono" style="display: block"></p>
+				<div class="ui-grid-solo llamar-espacio">
+					<a data-role="button" id="link-llamar" data-theme="c">Llamar</a>
+				</div>
+			</li>
+		</ul>
+		<div id="map" style="height: 300px" class="ui-grid-solo"></div>
+	</div>
+</div>
+
+<!--MENU-->
+<div data-role="page" id="menu">
+	<div data-role="header" data-position="fixed">
+		<a href="#restaurante" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
+	</div><!-- /header -->
+	<div data-role="content">
+		<ul data-role="listview" style="margin: 0px;" data-theme="d">
+			<li>
+				<img id="logo" style="padding: 10px" src="" />
+				<h2 id="title" style="display: block; white-space:normal;"></h2>
+				<p id="adress" style="display: block; white-space:normal;"></p>
+				<p id="telefono" style="display: block"></p>
+				<div class="ui-grid-solo llamar-espacio">
+					<a data-role="button" id="link-llamar" data-theme="c">Llamar</a>
+				</div>
+			</li>
+		</ul>
+		<div id="menu-colapsable" data-theme="b" data-content-theme="d" data-role="collapsible-set">
+		</div>
+	</div>
+</div>
+
+<!--PROMOCIONES DEL DIA-->
+<div data-role="page" id="promociones-del-dia">
+	<div data-role="header" data-position="fixed">
+		<a href="#home" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
+	</div><!-- /header -->
+	<div data-role="content">
+			<h2 id="label-main">Promociones de Hoy</h2>
+			<ul style="margin: 0px; margin-top: 10px" data-theme="d" data-role="listview" id="promospaceall">
+				
+			</ul>
+	</div>
+</div>
+
+<!--PROMOCIONES-->
+<div data-role="page" id="promociones">
+	<div data-role="header" data-position="fixed">
+		<a href="#restaurante" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
+	</div><!-- /header -->
+	<div data-role="content">
+		<ul data-role="listview" style="margin: 0px;" data-theme="d">
+			<li>
+				<img id="logo" style="padding: 10px" src="" />
+				<h2 id="title" style="display: block; white-space:normal;"></h2>
+				<p id="adress" style="display: block; white-space:normal;"></p>
+				<p id="telefono" style="display: block"></p>
+				<div class="ui-grid-solo llamar-espacio">
+					<a data-role="button" id="link-llamar" data-theme="c">Llamar</a>
+				</div>
+			</li>
+		</ul>
+		<ul style="margin: 0px; margin-top: 10px" data-theme="d" data-role="listview" id="promospace">
+			
+		</ul>
+	</div>
+</div>
+
+<!--GALERIA-->
+<div data-role="page" id="galeria">
+	<div data-role="header" data-position="fixed">
+		<a href="#restaurante" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
+	</div><!-- /header -->
+	<div data-role="content">
+		<ul data-role="listview" style="margin: 0px;" data-theme="d">
+			<li>
+				<img id="logo" style="padding: 10px" src="" />
+				<h2 id="title" style="display: block; white-space:normal;"></h2>
+				<p id="adress" style="display: block; white-space:normal;"></p>
+				<p id="telefono" style="display: block"></p>
+				<div class="ui-grid-solo llamar-espacio">
+					<a data-role="button" id="link-llamar" data-theme="c">Llamar</a>
+				</div>
+			</li>
+		</ul>
+			<div class="img-contenedor">
+				<div class="ui-grid-solo img-cont-int" >
+					<img id="img1" class="img-restaurantes" src=""/>
+				</div>
+				<div class="ui-grid-solo img-cont-int" >
+					<img id="img2" class="img-restaurantes" src=""/>
+				</div>
+				<div class="ui-grid-solo img-cont-int">
+					<img id="img3" class="img-restaurantes" src=""/>
+				</div> 
+				<div class="ui-grid-solo img-cont-int">
+					<img id="img4" class="img-restaurantes" src=""/>
+				</div>
+				<div class="ui-grid-solo img-cont-int">
+					<img id="img5" class="img-restaurantes" src=""/>
+				</div>
+			</div>
+	</div>
+</div>
+<div data-role="page" id="listado-completo">
+	<div data-role="header" data-position="fixed">
+		<a href="#home" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
+	</div><!-- /header -->
+	<div data-role="content">
+		<ul data-role="listview" id="listado-restaurantes-completo" data-theme="d" data-filter="true" data-filter-placeholder="Busqueda...">
+		</ul>
+	</div>
+</div>
+<script type="text/javascript">
+ $('[data-role=page]').on('pageshow', function (event, ui) {
+  try {
+    _gaq.push( ['_trackPageview', event.target.id] );
+    console.log(event.target.id);
+  } catch(err) {
+  }
+});
+</script>
+</body>
+</html>
