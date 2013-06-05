@@ -93,13 +93,15 @@
 		}
 	</style>
 	<script type="text/javascript" language="JavaScript">
-		jQuery(document).ready(function(){
+		jQuery(document).ajaxStart(function(){
 			$.mobile.loading( 'show', {
 				text: 'Cargando...',
 				textVisible: true,
 				theme: 'a',
 				html: ""
 			});
+		});
+		jQuery(document).ready(function(){
 			jQuery.post('http://comeralia.com.mx/api/api.php', {metodo : "tipos_comida"}, function( data ){
 				select = jQuery("#select-tipos-de-comida");
 				for(tipo in data){
@@ -114,12 +116,12 @@
 				$.mobile.loading( 'hide' );
 			}, "json");
 			jQuery("#busqueda-button").click(function(){
-				jQuery.mobile.loading( 'show', {
+				/*jQuery.mobile.loading( 'show', {
 					text: 'Cargando...',
 					textVisible: true,
 					theme: 'e',
 					html: ""
-				});
+				});*/
 				elemento = $(this)
 				jQuery("#listado-restaurantes").empty();
 				jQuery.post( 'http://comeralia.com.mx/api/api.php', jQuery("#busqueda-form").serialize(), function( data ){
@@ -435,7 +437,6 @@
 					lon = data.info.Longuitud;
 
 					if(lat != 0 || lon != 0){
-						alert(lat);
 						var currentposition = new google.maps.LatLng(lat,lon);
 						var mapoptions = {
 							zoom: 16,
@@ -454,8 +455,6 @@
 					
 					else{
 						geocoder = new google.maps.Geocoder();
-						alert("graficando con direccion");
-						
 						geocoder.geocode( { 'address': data.info.Calle + " " + data.info.Numero + ", " + data.info.Colonia + ", San Luis Potosi, San Luis Potosi, Mexico" }, function(results, status) {
 							if (status == google.maps.GeocoderStatus.OK) {
 								map.setCenter(results[0].geometry.location);
