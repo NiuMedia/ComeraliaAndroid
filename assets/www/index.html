@@ -160,11 +160,11 @@
 				elemento = $(this)
 				jQuery("#listado-restaurantes-completo").empty();
 				jQuery.ajax({
-					url: 'http://comeralia.com.mx/api/api.php',
+					url: "http://comeralia.com.mx/api/api.php",
 					dataType: "json",
-					data: {Cocina:"", Servicio:"", Zona:"", metodo: "restaurantes"},
+					data: {"Cocina":"", "Servicio":"", "Zona":"", "metodo": "restaurantes"},
 					success: function(data){
-						alert();
+						alert(data);
 						for(tipo in data){
 							elemento_lista  = jQuery("<li>"+
 								"<input type=\"hidden\" id=\"id-restaurante\" value=\""+data[tipo][0]+"\">"+
@@ -184,15 +184,19 @@
 							});
 						}
 						jQuery("#listado-restaurantes-completo").listview('refresh');
-						$.mobile.loading( 'hide' );
 					},
 					beforeSend: function(){
+						alert("Antes de enviar");
 						$.mobile.loading( 'show', {
 							text: 'Cargando...',
 							textVisible: true,
 							theme: 'a',
 							html: ""
 						});
+					},
+					complete: function(){
+						alert("Termino todo");
+						$.mobile.loading( 'hide' );
 					}
 				});
 /*
