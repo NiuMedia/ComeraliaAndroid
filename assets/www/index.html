@@ -93,14 +93,6 @@
 		}
 	</style>
 	<script type="text/javascript" language="JavaScript">
-		jQuery(document).ajaxStart(function(){
-			$.mobile.loading( 'show', {
-				text: 'Cargando...',
-				textVisible: true,
-				theme: 'a',
-				html: ""
-			});
-		});
 		jQuery(document).ready(function(){
 			jQuery.post('http://comeralia.com.mx/api/api.php', {metodo : "tipos_comida"}, function( data ){
 				select = jQuery("#select-tipos-de-comida");
@@ -165,14 +157,45 @@
 //BUSQUEDA POR RESTAURANTE
 //------------------------------------------------------------------
 			jQuery("#listado-con-busqueda").click(function(){
-				jQuery.mobile.loading( 'show', {
-					text: 'Cargando...',
-					textVisible: true,
-					theme: 'a',
-					html: ""
-				});
 				elemento = $(this)
 				jQuery("#listado-restaurantes-completo").empty();
+				jQuery.ajax({
+					url: 'http://comeralia.com.mx/api/api.php',
+					dataType: "json",
+					data: {Cocina:"", Servicio:"", Zona:"", metodo: "restaurantes"},
+					success: function(data){
+						alert();
+						for(tipo in data){
+							elemento_lista  = jQuery("<li>"+
+								"<input type=\"hidden\" id=\"id-restaurante\" value=\""+data[tipo][0]+"\">"+
+								data[tipo][1] +
+								"<div class=\"ui-grid-solo\">"+
+									"<a href=\"#restaurante\" data-transition=\"slideup\" id=\"ver-mas\" data-role=\"button\" data-theme=\"b\">Más</a>"+
+								"</div>"+
+							"</li>");
+							jQuery("#listado-restaurantes-completo").append(elemento_lista).trigger('create');
+							id_restaurante = elemento_lista.find("#id-restaurante").val();
+							elemento_lista.find("#ver-mas").click( function(){ 
+								
+								id_restaurante = $(this).parent().parent().find( "#id-restaurante" ).val();
+								origen_y_asi = "#listado-completo";
+								ver_mas( id_restaurante, origen_y_asi );
+								
+							});
+						}
+						jQuery("#listado-restaurantes-completo").listview('refresh');
+						$.mobile.loading( 'hide' );
+					},
+					beforeSend: function(){
+						$.mobile.loading( 'show', {
+							text: 'Cargando...',
+							textVisible: true,
+							theme: 'a',
+							html: ""
+						});
+					}
+				});
+/*
 				jQuery.post( 'http://comeralia.com.mx/api/api.php', {Cocina:"", Servicio:"", Zona:"", metodo: "restaurantes"}, function( data ){
 					
 					for(tipo in data){
@@ -195,7 +218,7 @@
 					}
 					jQuery("#listado-restaurantes-completo").listview('refresh');
 					$.mobile.loading( 'hide' );
-				}, "json" );
+				}, "json" ); */
 				
 				return true;
 			});
