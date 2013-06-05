@@ -117,12 +117,16 @@
 				jQuery.mobile.loading( 'show', {
 					text: 'Cargando...',
 					textVisible: true,
-					theme: 'a',
+					theme: 'e',
 					html: ""
 				});
 				elemento = $(this)
 				jQuery("#listado-restaurantes").empty();
 				jQuery.post( 'http://comeralia.com.mx/api/api.php', jQuery("#busqueda-form").serialize(), function( data ){
+					if (data == null || data == ""){
+						mensaje = jQuery('<h1>Lo sentimos, su busqueda <br /> no arrojo resultados</h1>');
+						jQuery('#listado-restaurantes').append(mensaje).trigger('create');
+					}
 					
 					for(tipo in data){
 						elemento_lista  = jQuery("<li>"+
@@ -156,7 +160,8 @@
 				
 				return true;
 			});
-
+//BUSQUEDA POR RESTAURANTE
+//------------------------------------------------------------------
 			jQuery("#listado-con-busqueda").click(function(){
 				jQuery.mobile.loading( 'show', {
 					text: 'Cargando...',
@@ -180,9 +185,9 @@
 						id_restaurante = elemento_lista.find("#id-restaurante").val();
 						elemento_lista.find("#ver-mas").click( function(){ 
 							
-							id_restaurante = $(this).parent().parent().parent().find( "#id-restaurante" ).val();
-							origen_y_asi = "#listado";
-							ver_mas( id_restaurante,origen_y_asi );
+							id_restaurante = $(this).parent().parent().find( "#id-restaurante" ).val();
+							origen_y_asi = "#listado-completo";
+							ver_mas( id_restaurante, origen_y_asi );
 							
 						});
 					}
@@ -192,7 +197,8 @@
 				
 				return true;
 			});
-		
+// VER MAS
+//------------------------------------------------------------------------------------		
 			function ver_mas( identificador , origen_ant){
 				
 				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'restaurante', id:identificador}, function( data ){
@@ -277,8 +283,113 @@
 				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'menu', id:id_restaurante}, function( data ){
 					
 					completo = "";
-					
+
 					for(x in data){
+						container_open = "<div data-role=\"collapsible\">" +
+							"<h2 id=\"menu-title\">"+data[x].Menu+"</h2>";
+							
+						lista = "";
+						precio1 = data[x].Platillos[0][2];
+						precio2 = data[x].Platillos[0][3];
+						precio3 = data[x].Platillos[0][4];
+						if( precio3 != 0.00){
+							lista = lista +
+								"<div class=\"ui-grid-c\">" +
+									"<div class=\"ui-block-a\"></div>" +
+									"<div class=\"ui-block-b\"><span style=\"position:relative; padding-left:15px;\">Chica</span></div>"+
+									"<div class=\"ui-block-c\"><span style=\"position:relative; padding-left:15px;\">Mediana</span></div>"+
+									"<div class=\"ui-block-d\"><span style=\"position:relative; padding-left:15px;\">Grande</span></div>"+
+								"</div>";
+								for(y in data[x].Platillos){
+									lista = lista +
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='border-style:solid; border-width: 1px; border-color: transparent;'></div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='border-style:solid; border-width: 1px; border-color: #E6E6E6;'></div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='border-style:solid; border-width: 1px; border-color: transparent;'></div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div>"+data[x].Platillos[y][0]+"</div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='color:grey;font-style:italic;font-size:.8em';>"+data[x].Platillos[y][1]+"</div>"+
+										"</div>"+
+										"<div class=\"ui-grid-c\">" +
+											"<div class=\"ui-block-a\"></div>" +
+											"<div class=\"ui-block-b\"><span style=\"position:relative; padding-left:15px;\">"+data[x].Platillos[y][2]+"</span></div>"+
+											"<div class=\"ui-block-c\"><span style=\"position:relative; padding-left:15px;\">"+data[x].Platillos[y][3]+"</span></div>"+
+											"<div class=\"ui-block-d\"><span style=\"position:relative; padding-left:15px;\">"+data[x].Platillos[y][4]+"</span></div>"+
+										"</div>";
+								}
+								container_close = "</div>";
+								completo = completo + container_open + lista + container_close;
+						}
+						else if( precio2 != 0.00 && precio3 == 0.00 ) {
+							lista = "";
+							lista = lista +
+								"<div class=\"ui-grid-b\">" +
+									"<div class=\"ui-block-a\"></div>" +
+									"<div class=\"ui-block-b\"><span style=\"position:relative; padding-left:15px;\">Mediana</span></div>"+
+									"<div class=\"ui-block-c\"><span style=\"position:relative; padding-left:15px;\">Grande</span></div>"+
+								"</div>";
+								for(y in data[x].Platillos){
+									lista = lista +
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='border-style:solid; border-width: 1px; border-color: transparent;'></div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='border-style:solid; border-width: 1px; border-color: #E6E6E6;'></div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='border-style:solid; border-width: 1px; border-color: transparent;'></div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div>"+data[x].Platillos[y][0]+"</div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='color:grey;font-style:italic;font-size:.8em';>"+data[x].Platillos[y][1]+"</div>"+
+										"</div>"+
+										"<div class=\"ui-grid-b\">" +
+											"<div class=\"ui-block-a\"></div>" +
+											"<div class=\"ui-block-b\"><span style=\"position:relative; padding-left:15px;\">"+data[x].Platillos[y][2]+"</span></div>"+
+											"<div class=\"ui-block-c\"><span style=\"position:relative; padding-left:15px;\">"+data[x].Platillos[y][3]+"</span></div>"+
+										"</div>";
+								}
+								container_close = "</div>";
+								completo = completo + container_open + lista + container_close;
+						}
+						else {
+							lista = "";
+							for(y in data[x].Platillos){
+									lista = lista +
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='border-style:solid; border-width: 1px; border-color: transparent;'></div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='border-style:solid; border-width: 1px; border-color: #E6E6E6;'></div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='border-style:solid; border-width: 1px; border-color: transparent;'></div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div>"+data[x].Platillos[y][0]+"</div>"+
+										"</div>"+
+										"<div class=\"ui-grid-solo\">"+
+											"<div style='color:grey;font-style:italic;font-size:.8em';>"+data[x].Platillos[y][1]+"</div>"+
+										"</div>"+
+										"<div class=\"ui-grid-a\">" +
+											"<div class=\"ui-block-a\"></div>" +
+											"<div class=\"ui-block-b\"><span style=\"position:relative; padding-left:15px;\">"+data[x].Platillos[y][2]+"</span></div>"+
+										"</div>";
+							}
+							container_close = "</div>";
+							completo = completo + container_open + lista + container_close;
+						}
+					
+					/*for(x in data){
 						container_open = "<div data-role=\"collapsible\">" +
 							"<h2 id=\"menu-title\">"+data[x].Menu+"</h2>";
 							
@@ -299,8 +410,8 @@
 						
 						completo = completo + container_open + lista + container_close;
 						
+					}*/
 					}
-					
 					
 					jQuery('#menu-colapsable').append(completo).collapsibleset( "refresh" );
 				}, 'json');
@@ -318,29 +429,53 @@
 					jQuery("#ubicacion #telefono").html(data.info.TelOficina);
 					jQuery("#ubicacion #logo").attr('src', "http://comeralia.com.mx/imagenes_usr/" + data.info.Logo);
 					jQuery("#ubicacion #link-llamar").attr('href', "tel:" + data.info.TelOficina);
-					
-					geocoder = new google.maps.Geocoder();
-					
-					geocoder.geocode( { 'address': data.info.Calle + " " + data.info.Numero + ", " + data.info.Colonia + ", San Luis Potosi, San Luis Potosi, Mexico" }, function(results, status) {
-						if (status == google.maps.GeocoderStatus.OK) {
-							map.setCenter(results[0].geometry.location);
-							var marker = new google.maps.Marker({
-								map: map, 
-								position: results[0].geometry.location
-							});
-						} else {
-							alert("La Geolocalizacion no pudo realizarse por la siguiente razon: " + status);
-						}
-					});
-					
-					var myLatlng = new google.maps.LatLng(22.142733,-101.010203);
-					var myOptions = {
-						zoom: 16,
-						center: myLatlng,
-						mapTypeId: google.maps.MapTypeId.ROADMAP
+
+					//latitud y longitud dada por el restaurante
+					lat = data.info.Latitud;
+					lon = data.info.Longuitud;
+
+					if(lat != 0 || lon != 0){
+						alert(lat);
+						var currentposition = new google.maps.LatLng(lat,lon);
+						var mapoptions = {
+							zoom: 16,
+							center: currentposition,
+							mapTypeId: google.maps.MapTypeId.ROADMAP
+						};
+
+						var map = new google.maps.Map(document.getElementById("map"), mapoptions);
+
+						var marker = new google.maps.Marker({
+							position: currentposition,
+							map: map
+						});
 					}
-					var map = new google.maps.Map(document.getElementById("map"), myOptions);
+					//--------------------
+					
+					else{
+						geocoder = new google.maps.Geocoder();
+						alert("graficando con direccion");
 						
+						geocoder.geocode( { 'address': data.info.Calle + " " + data.info.Numero + ", " + data.info.Colonia + ", San Luis Potosi, San Luis Potosi, Mexico" }, function(results, status) {
+							if (status == google.maps.GeocoderStatus.OK) {
+								map.setCenter(results[0].geometry.location);
+								var marker = new google.maps.Marker({
+									map: map, 
+									position: results[0].geometry.location
+								});
+							} else {
+								alert("La Geolocalizacion no pudo realizarse por la siguiente razon: " + status);
+							}
+						});
+						
+						var myLatlng = new google.maps.LatLng(22.142733,-101.010203);
+						var myOptions = {
+							zoom: 16,
+							center: myLatlng,
+							mapTypeId: google.maps.MapTypeId.ROADMAP
+						}
+						var map = new google.maps.Map(document.getElementById("map"), myOptions);
+					}
 					google.maps.event.addDomListener(window, 'load', initialize);
 
 				}, "json");
@@ -386,13 +521,18 @@
 				}, "json");
 				
 				jQuery.post("http://comeralia.com.mx/api/api.php", {metodo:'promociones', id:id_restaurante}, function( data ){
-					
+					if (data == null || data == ""){
+						promo_container = jQuery("<h1></h1>");
+						promo_container.append('Por el momento este <br /> restaurante no cuenta <br /> con promociones');
+						jQuery("#promospace").append(promo_container).listview('refresh');
+					}
+
 					for(x in data){
 						
-						titulo = jQuery("<h3></h3>");
-						dia = jQuery("<p style=\"white-space:normal\"></p>");
-						restricciones = jQuery("<p style=\"white-space:normal\"></p>");
-						promocion = jQuery("<p style=\"white-space:normal\"></p>");
+						titulo = jQuery("<h3 style=\"margin-left:1em\"></h3>");
+						dia = jQuery("<p style=\"white-space:normal; margin-left:1em\"></p>");
+						restricciones = jQuery("<p style=\"white-space:normal; margin-left:1em\"></p>");
+						promocion = jQuery("<p style=\"white-space:normal; margin-left:1em\"></p>");
 						promo_container = jQuery("<li></li>");
 						
 						switch(data[x].Dia){
@@ -451,7 +591,7 @@
 					for(tipo in data){
 						if(data[tipo].Restaurante==""||data[tipo].Restaurante==null){restaurant=" "}else{restaurant=data[tipo].Restaurante}
 						if(data[tipo].Titulo==""||data[tipo].Titulo==null){titulo="Promocion del día"}else{titulo=data[tipo].Titulo}
-						if(data[tipo].Restricciones==""||data[tipo].Restricciones==null){restricciones="Sin Restricciones"}else{restricciones=data[tipo].Restricciones}
+						if(data[tipo].Restricciones==""||data[tipo].Restricciones==null){restricciones="<br />"}else{restricciones=data[tipo].Restricciones}
 						elemento_lista  = jQuery("<li>"+
 							"<input type=\"hidden\" id=\"id-restaurante\" value=\""+data[tipo].IdRestaurante+"\">"+
 							"<img style=\"padding: 10px\" src=\"http://comeralia.com.mx/imagenes_usr/"+ data[tipo].Logo +"\" />"+
@@ -495,7 +635,7 @@
 
 	<div data-role="content">
 			<div id="fondo-busqueda">
-				<h2 id="label-main">¿Que quieres comer?</h2>
+				<!--<h3 id="label-main">¿Que quieres comer?</h3>-->
 				<form id="busqueda-form" action="#">
 					<label for="select-tipos-de-comida">Tipos de comida:</label>
 					<select data-theme="d" id="select-tipos-de-comida" name="Cocina">
@@ -516,7 +656,7 @@
 				 <a href="#listado" id="busqueda-button" data-transition="slideup" style="width: 100%; right: 0px; position: relative" data-theme="b" data-role="button">Buscar</a> 	
 		</div>
 		 <a href="#promociones-del-dia" id="promos-de-hoy" data-theme="c" data-role="button">Promociones de hoy</a> 
-		 <a href="#listado-completo" id="listado-con-busqueda" data-theme="a" data-role="button">Buscar dentro de todos los restaurantes</a> 
+		 <a href="#listado-completo" id="listado-con-busqueda" data-theme="a" data-role="button">Buscar por nombre</a> 
 	</div><!-- /content -->
 
 </div><!-- /page -->
@@ -553,7 +693,7 @@
 	<div data-role="header" data-position="fixed">
 
 		<a id="btn-volver" href="" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
-		<h1><img src="mobile/themes/images/logo_app_interno.png" width="100"/></h1>
+		<h1><a href="#home"><img src="mobile/themes/images/logo_app_interno.png" width="100"/></a></h1>
 	</div><!-- /header -->
 	<div data-role="content">
 		<input id="id-restaurante" type="hidden" value="" />
@@ -618,7 +758,7 @@
 				<div class="ui-block-b"><span id="horsab"></span></div>
 			</div>
 		<div>
-			<h2 id="title" style="display: block; white-space:normal;">Reseña</h2>
+		
 			<p id="resena"></p>
 		</div>
 	</div>
@@ -744,6 +884,8 @@
 			</div>
 	</div>
 </div>
+
+<!-- BUSQUEDA POR NOMBRE -->
 <div data-role="page" id="listado-completo">
 	<div data-role="header" data-position="fixed">
 		<a href="#home" data-transition="slidedown" style="margin-top: 10px" data-icon="arrow-l" data-theme="d">Regresar</a>
