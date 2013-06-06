@@ -114,7 +114,7 @@
 					theme: 'e',
 					html: ""
 				});*/
-				elemento = $(this)
+				elemento = $(this);
 				jQuery("#listado-restaurantes").empty();
 				jQuery.post( 'http://comeralia.com.mx/api/api.php', jQuery("#busqueda-form").serialize(), function( data ){
 					if (data == null || data == ""){
@@ -157,14 +157,20 @@
 //BUSQUEDA POR RESTAURANTE
 //------------------------------------------------------------------
 			jQuery("#listado-con-busqueda").click(function(){
-				elemento = $(this)
+				jQuery.mobile.loading( 'show', {
+					text: 'Cargando...',
+					textVisible: true,
+					theme: 'a',
+					html: ""
+				});
+				elemento = $(this);
 				jQuery("#listado-restaurantes-completo").empty();
 				jQuery.ajax({
 					url: 'http://comeralia.com.mx/api/api.php',
 					dataType: "json",
+					type: "POST",
 					data: {Cocina:"", Servicio:"", Zona:"", metodo: "restaurantes"},
 					success: function(data){
-						alert();
 						for(tipo in data){
 							elemento_lista  = jQuery("<li>"+
 								"<input type=\"hidden\" id=\"id-restaurante\" value=\""+data[tipo][0]+"\">"+
@@ -184,7 +190,7 @@
 							});
 						}
 						jQuery("#listado-restaurantes-completo").listview('refresh');
-						$.mobile.loading( 'hide' );
+						//$.mobile.loading( 'hide' );
 					},
 					beforeSend: function(){
 						$.mobile.loading( 'show', {
@@ -193,10 +199,13 @@
 							theme: 'a',
 							html: ""
 						});
+					},
+					complete: function(){
+						$.mobile.loading( 'hide' );
 					}
 				});
-/*
-				jQuery.post( 'http://comeralia.com.mx/api/api.php', {Cocina:"", Servicio:"", Zona:"", metodo: "restaurantes"}, function( data ){
+
+				/*jQuery.post( 'http://comeralia.com.mx/api/api.php', {Cocina:"", Servicio:"", Zona:"", metodo: "restaurantes"}, function( data ){
 					
 					for(tipo in data){
 						elemento_lista  = jQuery("<li>"+
