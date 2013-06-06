@@ -154,7 +154,7 @@
 						});
 					}
 					jQuery("#listado-restaurantes").listview('refresh');
-					$.mobile.loading( 'hide' );
+					//$.mobile.loading( 'hide' );
 				},
 				beforeSend: function(){
 						alert("Antes de enviar");
@@ -169,7 +169,7 @@
 						$.mobile.loading( 'hide' );
 					}
 				});
-				
+
 				/*jQuery.post( 'http://comeralia.com.mx/api/api.php', jQuery("#busqueda-form").serialize(), function( data ){
 					if (data == null || data == ""){
 						mensaje = jQuery('<h1>Lo sentimos, su busqueda <br /> no arrojo resultados</h1>');
@@ -223,6 +223,7 @@
 					url: "http://comeralia.com.mx/api/api.php",
 					dataType: "json",
 					type: "POST",
+					crossDomain : true,
 					data: {Cocina:"", Servicio:"", Zona:"", metodo: "restaurantes"},
 					success: function(data){
 
@@ -249,17 +250,32 @@
 						//$.mobile.loading( 'hide' );
 					},
 					beforeSend: function(){
-						alert("Antes de enviar");
-						$.mobile.loading( 'show', {
-							text: 'Cargando...',
-							textVisible: true,
+					     setTimeout(function(){
+					     $.mobile.loading('show', {
+					     	text: 'Cargando...',
+					     	textVisible: true,
 							theme: 'a',
 							html: ""
-						});
+						});},1);  
 					},
+					/*beforeSend: function(){
+						$.mobile.showPageLoadingMsg();
+							//$.mobile.loading( 'show'
+							/*	text: 'Cargando...',
+								textVisible: true,
+								theme: 'a',
+								html: ""
+							//)
+					},*/
+					/*complete: function(){
+						$.mobile.hidePageLoadingMsg();
+						//$.mobile.loading( 'hide' );
+					}*/
 					complete: function(){
-						$.mobile.loading( 'hide' );
-					}
+				      setTimeout(function(){
+				     	$.mobile.loading('hide');
+				     },1);  
+				    }
 				});
 
 				/*jQuery.post( 'http://comeralia.com.mx/api/api.php', {Cocina:"", Servicio:"", Zona:"", metodo: "restaurantes"}, function( data ){
