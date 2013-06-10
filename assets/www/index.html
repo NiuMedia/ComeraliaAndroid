@@ -157,6 +157,7 @@
 					//$.mobile.loading( 'hide' );
 				},
 				beforeSend: function(){
+
 						setTimeout(function(){
 					     $.mobile.loading('show', {
 					     	text: 'Cargando...',
@@ -813,8 +814,10 @@
 				</form>
 				 <a href="#listado" id="busqueda-button" data-transition="slideup" style="width: 100%; right: 0px; position: relative" data-theme="b" data-role="button">Buscar</a> 	
 		</div>
-		 <a href="#promociones-del-dia" id="promos-de-hoy" data-theme="c" data-role="button">Promociones de hoy</a> 
-		 <a href="#listado-completo" id="listado-con-busqueda" data-theme="a" data-role="button">Buscar por nombre</a> 
+		<fieldset class="ui-grid-a">
+		 <a href="#promociones-del-dia" class="ui-block-a" id="promos-de-hoy" data-theme="c" data-role="button" data-inline="true" style="margin-right:2px;margin-left:2px;width:48%">Promos<br/>de hoy</a> 
+		 <a href="#listado-completo" class="ui-block-b" id="listado-con-busqueda" data-theme="c" data-role="button" data-inline="true" style="margin-right:2px;margin-left:2px;width:48%">Buscar<br/>por nombre</a> 
+		</fieldset>
 	</div><!-- /content -->
 
 </div><!-- /page -->
@@ -871,7 +874,7 @@
 				<a href="#menu" id="btn-menu" data-role="button" data-theme="b">Menú</a>
 			</div>
 			<div class="ui-block-b">
-				<a id="btn-promociones" href="#promociones" data-role="button" data-theme="a">Promociones</a>
+				<a id="btn-promociones" href="#promociones" data-role="button" data-theme="a">Promos</a>
 			</div>
 		</div>
 		<div class="ui-grid-a">
@@ -886,38 +889,41 @@
 		<div id="chars" class="ui-grid-solo">
 			
 		</div>
-			<h3>Horario</h3>
-			<div class="ui-grid-a">
-				<div class="ui-block-a"><span>Domingo: </span></div>
-				<div class="ui-block-b"><span id="hordom"></span></div>
-			</div>
-			<div class="ui-grid-a">
-				<div class="ui-block-a"><span>Lunes: </span></div>
-				<div class="ui-block-b"><span id="horlun"></span></div>
-			</div>
-			<div class="ui-grid-a">
-				<div class="ui-block-a"><span>Martes: </span></div>
-				<div class="ui-block-b"><span id="hormar"></span></div>
-			</div>
-			<div class="ui-grid-a">
-				<div class="ui-block-a"><span>Miercoles: </span></div>
-				<div class="ui-block-b"><span id="hormier"></span></div>
-			</div>
-			<div class="ui-grid-a">
-				<div class="ui-block-a"><span>Jueves: </span></div>
-				<div class="ui-block-b"><span id="horjue"></span></div>
-			</div>
-			<div class="ui-grid-a">
-				<div class="ui-block-a"><span>Viernes: </span></div>
-				<div class="ui-block-b"><span id="horvie"></span></div>
-			</div>
-			<div class="ui-grid-a">
-				<div class="ui-block-a"><span>Sabado: </span></div>
-				<div class="ui-block-b"><span id="horsab"></span></div>
+			<div id="fondo-busqueda" style="padding-bottom: 3px; margin-bottom: 5px">
+				<h3>Horario</h3>
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><span>Domingo: </span></div>
+					<div class="ui-block-b"><span id="hordom"></span></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><span>Lunes: </span></div>
+					<div class="ui-block-b"><span id="horlun"></span></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><span>Martes: </span></div>
+					<div class="ui-block-b"><span id="hormar"></span></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><span>Miercoles: </span></div>
+					<div class="ui-block-b"><span id="hormier"></span></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><span>Jueves: </span></div>
+					<div class="ui-block-b"><span id="horjue"></span></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><span>Viernes: </span></div>
+					<div class="ui-block-b"><span id="horvie"></span></div>
+				</div>
+				<div class="ui-grid-a">
+					<div class="ui-block-a"><span>Sabado: </span></div>
+					<div class="ui-block-b"><span id="horsab"></span></div>
+				</div>
 			</div>
 		<div>
-		
-			<p id="resena"></p>
+			<div id="fondo-busqueda" style="margin-bottom: 5px;">
+				<p id="resena"></p>
+			</div>
 		</div>
 	</div>
 </div>
